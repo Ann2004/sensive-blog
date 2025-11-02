@@ -1,6 +1,8 @@
 from django.shortcuts import render
 from blog.models import Comment, Post, Tag
-from django.db.models import Count, Prefetch
+from django.db.models import Count
+from django.core.exceptions import ObjectDoesNotExist
+from django.http import Http404
 
     
 def post_optimized(post):
@@ -43,7 +45,11 @@ def index(request):
 
 
 def post_detail(request, slug):
-    post = Post.objects.optimize().get(slug=slug)
+    try:
+        post = Post.objects.optimize().get(slug=slug)
+    except ObjectDoesNotExist:
+        return Http404('<h1>Post does not exist</h1>')
+        
     comments = Comment.objects.filter(post=post).select_related('author')
     serialized_comments = []
     for comment in comments:
@@ -84,7 +90,10 @@ def post_detail(request, slug):
 
 
 def tag_filter(request, tag_title):
-    tag = Tag.objects.get(title=tag_title)
+    try:
+        tag = Tag.objects.get(title=tag_title)
+    except ObjectDoesNotExist:
+        return Http404('<h1>Tag does noe exist</h1>')
 
     most_popular_tags = Tag.objects.popular()
 
