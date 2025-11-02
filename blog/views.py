@@ -4,7 +4,7 @@ from django.db.models import Count
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
-    
+
 def post_optimized(post):
     return {
         'title': post.title,
@@ -26,10 +26,21 @@ def serialize_tag(tag):
     }
 
 
-def index(request):    
-    most_popular_posts = Post.objects.popular().optimize()[:5].fetch_with_comments_count()
+def index(request):
+    most_popular_posts = (
+        Post.objects
+        .popular()
+        .optimize()[:5]
+        .fetch_with_comments_count()
+    )
 
-    fresh_posts = Post.objects.optimize().annotate(Count('comments')).order_by('published_at')
+    fresh_posts = (
+        Post.objects
+        .optimize()
+        .annotate(Count('comments'))
+        .order_by('published_at')
+    )
+    
     most_fresh_posts = list(fresh_posts)[-5:]
 
     most_popular_tags = Tag.objects.popular()
@@ -49,8 +60,13 @@ def post_detail(request, slug):
         post = Post.objects.optimize().get(slug=slug)
     except ObjectDoesNotExist:
         return Http404('<h1>Post does not exist</h1>')
-        
-    comments = Comment.objects.filter(post=post).select_related('author')
+
+    comments = (
+        Comment.objects
+        .filter(post=post)
+        .select_related('author')
+    )
+    
     serialized_comments = []
     for comment in comments:
         serialized_comments.append({
@@ -77,8 +93,13 @@ def post_detail(request, slug):
 
     most_popular_tags = Tag.objects.popular()
 
-    most_popular_posts = Post.objects.popular().optimize()[:5].fetch_with_comments_count()
-
+    most_popular_posts = (
+        Post.objects
+        .popular()
+        .optimize()[:5]
+        .fetch_with_comments_count()
+    )
+    
     context = {
         'post': serialized_post,
         'popular_tags': [serialize_tag(tag) for tag in most_popular_tags],
@@ -97,9 +118,18 @@ def tag_filter(request, tag_title):
 
     most_popular_tags = Tag.objects.popular()
 
-    most_popular_posts = Post.objects.popular().optimize()[:5].fetch_with_comments_count()
+    most_popular_posts = (
+        Post.objects
+        .popular()
+        .optimize()[:5]
+        .fetch_with_comments_count()
+    )
 
-    related_posts = tag.posts.optimize()[:20].fetch_with_comments_count()
+    related_posts = (
+        tag.posts
+        .optimize()[:20]
+        .fetch_with_comments_count()
+    )
 
     context = {
         'tag': tag.title,
