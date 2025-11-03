@@ -114,7 +114,7 @@ def tag_filter(request, tag_title):
     try:
         tag = Tag.objects.get(title=tag_title)
     except ObjectDoesNotExist:
-        return Http404('<h1>Tag does noe exist</h1>')
+        return Http404('<h1>Tag does not exist</h1>')
 
     most_popular_tags = Tag.objects.popular()
 
