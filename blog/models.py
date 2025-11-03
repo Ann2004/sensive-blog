@@ -27,9 +27,9 @@ class PostQuerySet(models.QuerySet):
         
         return self
     
-    def optimize(self):
-        posts_optimized = self.select_related('author').prefetch_related(Prefetch('tags', queryset=Tag.objects.annotate(posts__count=Count('posts'))))
-        return posts_optimized
+    def fetch_tags_with_posts_count(self):
+        posts_with_tags_count = self.select_related('author').prefetch_related(Prefetch('tags', queryset=Tag.objects.annotate(posts__count=Count('posts'))))
+        return posts_with_tags_count
 
 
 class TagQuerySet(models.QuerySet):

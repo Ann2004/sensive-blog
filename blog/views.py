@@ -30,13 +30,13 @@ def index(request):
     most_popular_posts = (
         Post.objects
         .popular()
-        .optimize()[:5]
+        .fetch_tags_with_posts_count()[:5]
         .fetch_with_comments_count()
     )
 
     fresh_posts = (
         Post.objects
-        .optimize()
+        .fetch_tags_with_posts_count()
         .annotate(Count('comments'))
         .order_by('published_at')
     )
@@ -57,7 +57,7 @@ def index(request):
 
 def post_detail(request, slug):
     try:
-        post = Post.objects.optimize().get(slug=slug)
+        post = Post.objects.fetch_tags_with_posts_count().get(slug=slug)
     except ObjectDoesNotExist:
         return Http404('<h1>Post does not exist</h1>')
 
@@ -96,7 +96,7 @@ def post_detail(request, slug):
     most_popular_posts = (
         Post.objects
         .popular()
-        .optimize()[:5]
+        .fetch_tags_with_posts_count()[:5]
         .fetch_with_comments_count()
     )
     
@@ -121,13 +121,13 @@ def tag_filter(request, tag_title):
     most_popular_posts = (
         Post.objects
         .popular()
-        .optimize()[:5]
+        .fetch_tags_with_posts_count()[:5]
         .fetch_with_comments_count()
     )
 
     related_posts = (
         tag.posts
-        .optimize()[:20]
+        .fetch_tags_with_posts_count()[:20]
         .fetch_with_comments_count()
     )
 
